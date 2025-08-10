@@ -1,0 +1,53 @@
+App.js
+
+/* {
+
+                  Request and Response
+                  1. Node Lifecyycle and Event Loop
+                  2. How to exit Event Loop
+                  3. Understanding Rwquest Object
+                  4. Sending Response
+                  5. Routing Requests
+                  6. Taking User Input
+                  7. Redirecting Requests 
+
+}
+                  */
+
+const http = require('http');
+const server = http.createServer((req, res) => {
+  console.log(req.url, req.method, req.headers); // Fixed 'methods' typo
+
+  if (req.url === '/') {
+    res.setHeader('Content-Type', 'text/html');
+    res.write('<html>');
+    res.write('<head><title>Complete Coding</title></head>'); // Fixed spelling
+    res.write('<body><h1>Welcome to Home</h1></body>');
+    res.write('</html>');
+    return res.end();
+  } else if (req.url === '/products') { // Changed '/Products' to lowercase
+    res.setHeader('Content-Type', 'text/html');
+    res.write('<html>');
+    res.write('<head><title>Complete Coding</title></head>');
+    res.write('<body><h1>Check out our product</h1></body>');
+    res.write('</html>');
+    return res.end();
+  }
+
+  res.setHeader('Content-Type', 'text/html');
+  res.write('<html>');
+  res.write('<head><title>Complete Coding</title></head>');
+  res.write('<body><h1>Wellcome to Node JS toturial</h1></body>');
+  res.write('</html>');
+  return res.end();
+});
+
+const port = 3002;
+server.listen(port, () => {
+  console.log(`Server is running on address http://localhost:${port}`);
+});
+
+========================
+
+
+
