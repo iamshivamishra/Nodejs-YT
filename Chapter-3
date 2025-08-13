@@ -1,0 +1,155 @@
+app.js
+
+
+const http = require('http');
+const requestHandler =  require('./user.js');
+const server = http.createServer(requestHandler);
+
+const port = 3002;
+server.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`); 
+});
+
+
+==============
+
+calculator.js
+
+const http = require('http');
+const { requestHandler } = require('./handler.js');
+const server = http.createServer(requestHandler);
+const PORT = 3000;
+server.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
+
+
+====================
+
+
+handler.js
+
+const {sumRequestHandler} = require('./sum');
+// const { log } = require("console");
+
+const requestHandler = (req,res) => {
+console.log(req.url, req.method);  
+if(req.url === '/'){
+  res.setHeader('Content-Type', 'text/html');
+  res.write('<html>');
+  res.write('<head><title>Calculator Practise Set</title></head>');
+  res.write('<body><h1>Welcome to the Calculator</h1></body>');
+  res.write('<a href ="./calculator">Go to Calculator</a>');
+  res.write('</html>');
+  return res.end();
+}else if (req.url.toLowerCase() === '/calculator') {
+    res.setHeader('Content-Type', 'text/html');
+  res.write('<html>');
+  res.write('<head><title>Calculator Practise Set</title></head>');
+  res.write('<body><h1>Here is the Calculator</h1></body>');
+  res.write('<form action="/calculate-result" method="POST">');
+  res.write('<input type="text" name="first num" placeholder="Enter first number">');
+  res.write('<input type="text" name ="secound num" placeholder="Enter secound number">');
+  res.write('<input type="submit" value="Submit"/>');
+  res.write('</form>');
+  res.write('</html>');
+  return res.end();
+} else if (req.url.toLowerCase() === '/calculate-result' && req.method === 'POST'){
+    return   sumRequestHandler(req, res);
+} 
+ res.setHeader('Content-Type', 'text/html');
+  res.write('<html>');
+  res.write('<head><title>Calculator Practise Set</title></head>');
+  res.write('<body><h1>404 Page does not found</h1></body>');
+  res.write('<a href ="./">Go to Home</a>');
+  res.write('</html>');
+  return res.end();
+}
+exports.requestHandler = requestHandler;
+
+
+===================
+
+sum.js
+
+
+const sumRequestHandler = (req,res) => {
+  console.log('In sum request handler', req.url);
+  const body = [];
+  req.on('data', chunk => {
+  body.push(chunk);
+  });
+  req.on('end', ()=> {
+    const bodyStr = Buffer.concat(body).toString();
+    const params = new URLSearchParams(bodyStr);
+    const bodyObj = Object.fromEntries(params);
+    console.log('Parsed Body:', bodyObj)
+    const result =  Number(bodyObj['first num']) + Number(bodyObj['secound num']);
+    console.log('Result:', result);
+  }) 
+};
+exports.sumRequestHandler = sumRequestHandler;
+
+
+========================
+
+
+user.js
+
+
+const fs = require('fs');
+const userRequestHandler =  (req, res) => {
+  console.log(req.url, req.method);
+
+  if (req.url === '/' && req.method === 'GET') {
+    res.setHeader('Content-Type', 'text/html');
+    res.write('<html>');
+    res.write('<head><title>Complete Coding</title></head>');
+    res.write('<body><h1>Enter your Details</h1>');
+    res.write('<form method="POST" action="/submit-details">');
+    res.write('<input type="text" name="username" placeholder="Enter your name"><br>');
+    res.write('<label for="male">Male</label>');
+    res.write('<input type="radio" id="male" name="gender" value="male"/><br>');
+    res.write('<label for="female">Female</label>');
+    res.write('<input type="radio" id="female" name="gender" value="female"/><br>');
+    res.write('<input type="submit" value="Submit"/>');
+    res.write('</form>');
+    res.write('</body>');
+    res.write('</html>');
+    return res.end();
+  } 
+  else if (req.url.toLowerCase() === '/submit-details' && req.method === 'POST') {
+    const body = [];
+    
+    req.on('data', chunk => {
+      console.log('Received chunk:', chunk);
+      body.push(chunk);
+    });
+
+   req.on('end', () => {
+  const fullBody = Buffer.concat(body).toString();
+  console.log('Full Body:', fullBody);
+
+  const params = new URLSearchParams(fullBody);
+  // const bodyObject = {};
+
+  // for (const [key, value] of params.entries()) {
+  //   bodyObject[key] = value;
+  // }
+  const bodyObject = Object.fromEntries(params);
+  console.log('Parsed Body:', bodyObject);
+  fs.writeFileSync('user.txt', JSON.stringify(bodyObject));
+});
+res.statusCode = 302;
+res.setHeader('Location', '/');
+  } 
+  else {
+    res.setHeader('Content-Type', 'text/html');
+    res.write('<html>');
+    res.write('<head><title>Complete Coding</title></head>');
+    res.write('<body><h1>Welcome to Node JS tutorial</h1></body>');
+    res.write('</html>');
+    return res.end();
+  }
+};
+module.exports = userRequestHandler;
